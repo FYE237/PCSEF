@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "ecran.h": "c",
+        "tinyalloc.h": "c",
+        "inttypes.h": "c"
+    }
+}
