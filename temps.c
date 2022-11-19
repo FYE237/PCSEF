@@ -196,6 +196,7 @@ void ordonnance(void){
 
 void dors(int n){
   jobs->premier->dateReveil =  NB_SECONDE + n;
+  jobs->premier->state = endormi;
   if(jobs->premier->pid != 0) insererSleeping(jobs->premier);
   ordonnance();
 
