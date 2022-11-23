@@ -28,7 +28,13 @@ void ecrit_car(uint32_t lig,uint32_t col, char c,uint8_t couleur_texte,uint8_t c
         line_courant = (lig +1)%25;
         col_courant = 0;
     }
-    place_curseur(line_courant,col_courant);
+
+}
+
+void AfficherHorloge(uint32_t lig,uint32_t col, char c,uint8_t couleur_texte,uint8_t couleur_fond,uint8_t clignote)
+{
+    *ptr_mem(lig,col) = c|(clignote << 15) | (couleur_fond <<12) |(couleur_texte<<8); 
+
 }
 
 void efface_ecran(void) {
@@ -51,69 +57,77 @@ void place_curseur(uint32_t lig, uint32_t col)
     outb(lower,0x3D5);
     outb(0x0E,0x3D4);
     outb(upper,0x3D5);
+
+    line_courant = lig;
+    col_courant = col;
 }
 
-void getPositionCouranteCurseur(void){
-     outb(0x0F,0x3D4);
-     uint8_t lower = inb(0x3D5); // On récupere la partie basse
-     outb(0x0E,0x3D4);
-     uint8_t upper = inb(0x3D5); //On récupère la partie haute
-     uint16_t pos = upper<<8| lower; //On trouve la position totale qui est sur 16bits composées de haute et basse
-      line_courant = pos/80; //On trouve la ligne et la colonne associé à l'écran pos = lig*80 + col
-      col_courant =pos%80;
-}
+
 
 void traite_car(char c)
 {
     uint16_t code = c;
-     getPositionCouranteCurseur();
-     if( code <32 || code == 127)
+    if(code >=0 && code <=127){
+       if(code >=32 && code <=126){
+        ecrit_car(line_courant,col_courant,c,15,0,0);
+        
+        }
+     else
         {
             switch (code)
             {
             case 8: /* constant-expression */
                 /* code */
-                ecrit_car(line_courant,col_courant,'\b',15,0,0);
+                col_courant = (col_courant -1) % 80;
+                place_curseur(line_courant,col_courant);
+
                 break;
             case 9:
-                ecrit_car(line_courant,col_courant,'\t',15,0,0);
+                col_courant = (col_courant + 4)%80;
+                place_curseur(line_courant,col_courant);
                 break;
             case 10:
-                ecrit_car(line_courant,col_courant,'\n',15,0,0);
+                col_courant = 0;
+                line_courant = (line_courant + 1)%25 ;
+                place_curseur(line_courant,col_courant);
                 break;
             case 12:
-                ecrit_car(line_courant,col_courant,'\f',15,0,0);
+                efface_ecran();
+                col_courant = 0;
+                line_courant = 0;
+                place_curseur(0,0);
                 break;
             case 13:
-                ecrit_car(line_courant,col_courant,'\r',15,0,0);
+                col_courant =0 ;
+                place_curseur(line_courant,col_courant);
                 break;
             default:
                 break;
             }
         } 
-    if(code >31 && code <127){
-        ecrit_car(line_courant,col_courant,c,15,0,0);
-        
+
     } 
    
 }
 
 void defilement(void){
-    int i=1;
-    while(i<LINE){
-        int j=0;
-        for(j=0;j<COL;j++){
-            memmove(ptr_mem(i-1,j),ptr_mem(i,j),1);
-        }
-    }
+    // int i=1;
+    // while(i<LINE){
+    //     int j=0;
+    //     for(j=0;j<COL;j++){
+
+            memmove(ptr_mem(line_courant,col_courant),ptr_mem(line_courant-1,col_courant),COL*LINE*16);
+            col_courant = 0;
+            line_courant -= 1;
+    //     }
+    // }
 }
 
 void console_putbytes(const char *s,int len){
-         getPositionCouranteCurseur();
         int i=0;
         while(i<len)
             {   
-                ecrit_car(line_courant,col_courant,s[i],15,0,0);
+                traite_car(s[i]);
                 i++;
             }
 }

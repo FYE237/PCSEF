@@ -20,24 +20,13 @@ process* table[TAILLE_PROCESSS_TABLE]  ;
 
 ActivableList *jobs ;
 SleepingList *sleeping;
+DeadList *dead;
+
 
 int nb=0;
 int NB_INT=49;
 int NB_SECONDE=0;
-// on peut s'entrainer a utiliser GDB avec ce code de base
-// par exemple afficher les valeurs de x, n et res avec la commande display
 
-// une fonction bien connue
-// uint32_t fact(uint32_t n)
-// {
-//     uint32_t res;
-//     if (n <= 1) {
-//         res = 1;
-//     } else {
-//         res = fact(n - 1) * n;
-//     }
-//     return res;
-// }
 
 /*********** TP3 *********/
 int32_t mon_pid(void){
@@ -133,6 +122,14 @@ int nbr_secondes(){
 //   insereSleeping(jobs->premier->dateReveil);
 // }
 
+/******Etape Geestion de la terminaison des processus*/
+
+
+
+
+
+
+/******Etape Geestion de la terminaison des processus*/
 
 
 void idle(void)
@@ -155,22 +152,34 @@ void idle(void)
     }
 }
 void proc1(void) {
-  for (;;) {
-    //printf("[%s] pid = %i\n", mon_nom(), mon_pid());
-   //ordonnance(); //Modele statique
+  //Process activables
+  // for (;;) {
+  //   //printf("[%s] pid = %i\n", mon_nom(), mon_pid());
+  //  //ordonnance(); //Modele statique
 
-    /*** Gestion avec l'horloge **/
-      // sti();
-      // hlt();
-      // cli();
-    /********/ 
+  //   /*** Gestion avec l'horloge **/
+  //     // sti();
+  //     // hlt();
+  //     // cli();
+  //   /********/ 
 
-    //Etapes  avec liste des processus endormis!.
-      printf("[temps = %u] processus %s pid = %i\n", nbr_secondes(),
-              mon_nom(), mon_pid());
-      dors(2);
+  //   //Etapes  avec liste des processus endormis!.
+  //     printf("[temps = %u] processus %s pid = %i\n", nbr_secondes(),
+  //             mon_nom(), mon_pid());
+  //     dors(2);
 
-    }
+  //   }
+
+    /****  Liste des processus morts *****/
+      for (int32_t i = 0; i < 2; i++) {
+          printf("[temps = %u] processus %s pid = %i\n", nbr_secondes(),
+                mon_nom(), mon_pid());
+        dors(2);
+      }
+      //fin_processus();  //On commente ca  pour terminaison automatique
+      
+
+    /****  Liste des processus morts *****/
 }
 
 
@@ -233,28 +242,53 @@ void init_proc(void){
 
     /****   Cas des 04 processus pour la liste des processus endormis  ****/
 
+    //  table[nb]->pid=nb;
+    //  table[nb]->state=activable;
+    //  table[nb]->stack = (uint32_t *)(malloc(512*sizeof(uint32_t)));
+    //  table[nb]->stack[0] = (uint32_t *)(fin_processus);
+    // switch (nb)
+    // {
+    //   case 1 :
+    //     table[nb]->stack[511]= (uint32_t)(proc1);
+    //     break;
+    //   case 2 :
+    //     table[nb]->stack[511]= (uint32_t)(proc2);
+    //     break;;
+    //   case 3 :
+    //     table[nb]->stack[511]= (uint32_t)(proc3);
+    //     break;
+    //   default:
+    //     break;
+    // }
+
+    //  table[nb]->savezone[1]= (uint32_t)(&(table[nb]->stack[511]));
+
+    /****   Cas des 04 processus pour la liste des processus endormis  ****/
+
+
+    /**** Terminsaison automatique des processus ****/
      table[nb]->pid=nb;
      table[nb]->state=activable;
      table[nb]->stack = (uint32_t *)(malloc(512*sizeof(uint32_t)));
-
+     table[nb]->stack[511] = (uint32_t)(fin_processus);
     switch (nb)
     {
       case 1 :
-        table[nb]->stack[511]= (uint32_t)(proc1);
+        table[nb]->stack[510]= (uint32_t)(proc1);
         break;
       case 2 :
-        table[nb]->stack[511]= (uint32_t)(proc2);
+        table[nb]->stack[510]= (uint32_t)(proc2);
         break;;
       case 3 :
-        table[nb]->stack[511]= (uint32_t)(proc3);
+        table[nb]->stack[510]= (uint32_t)(proc3);
         break;
       default:
         break;
     }
 
-     table[nb]->savezone[1]= (uint32_t)(&(table[nb]->stack[511]));
+     table[nb]->savezone[1]= (uint32_t)(&(table[nb]->stack[510]));
 
-    /****   Cas des 04 processus pour la liste des processus endormis  ****/
+    /**** Terminsaison automatique des processus ****/
 
 
    }
@@ -380,6 +414,7 @@ void kernel_start(void)
 
   jobs = malloc(sizeof(ActivableList));
   sleeping = malloc(sizeof(SleepingList));
+  dead = malloc(sizeof(DeadList));
 //int i=1;
 
  char nom[N][6]; //Un tableau des noms de longueur 6 de nos 8=N processurs

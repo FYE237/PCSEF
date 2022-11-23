@@ -15,6 +15,9 @@ uint16_t *ptr_mem(uint32_t lig,uint32_t col);
 //C'est une focntion qui écrit le caractère aux coordonnées spécifiées
 void ecrit_car(uint32_t lig,uint32_t col, char c,uint8_t couleur_texte,uint8_t couleur_fond,uint8_t clignote);
 
+void AfficherHorloge(uint32_t lig,uint32_t col, char c,uint8_t couleur_texte,uint8_t couleur_fond,uint8_t clignote);
+
+
 void efface_ecran(void);
 
 void place_curseur(uint32_t lig, uint32_t col);
