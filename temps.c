@@ -41,14 +41,15 @@ char* getProcessState(enum state_process state)
 }
 
 void afficherChaine(char *chaine)
-{
-    int i=0,pos=COL-10;
-    while(pos<=COL)
+{ 
+    //Faire addition et pas soustraction
+    int i=0,pos = strlen(chaine);//pos=COL-10;
+    while(i<pos)
     {   
         //On choisir d'écrir sur la ligne numéro 2
-        AfficherHorloge(2,pos,chaine[i],15,0,0);
+        AfficherHorloge(2,70 + i,chaine[i],15,0,0);
         i++;
-        pos++;
+
     }
 } 
 
